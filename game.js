@@ -96,7 +96,7 @@ class Level {
                 else {
                     tile = new Tile(tileX, tileY, parseInt(row[col]));
                 }
-                columnTiles.push(tile);
+                tile && columnTiles.push(tile);
             }
             tileY += TILE_SIZE;
             return columnTiles;
@@ -111,7 +111,6 @@ class Level {
             row.forEach(col => col.draw(context, xShift));
             y += TILE_SIZE;
         }
-        // this.tiles.forEach(row => row.forEach(col => col.draw(context)));
     }
     leftCollision(leftX, rightX, y) {
         let blockingTiles = this.horizontalTiles(leftX, rightX, y).filter(tile => tile.isBlocking() && tile.upperBlocking);
@@ -202,13 +201,13 @@ Level.data2 = [
     // "433333333333333333333333333335"
     "633333333333333333333333333333333333333333333333333333333333333333333333333333333337",
     "2     1                                                                            2",
-    "2     1     e                                                                      2",
+    "2     1     e      e                                                               2",
     "2   1 1   <--->  <--->                                                             2",
-    "2  01 1   e                                                                        2",
-    "2   1  <----->                                                                     2",
-    "20  1                                                                              2",
-    "2   1 <------>1                                                                    2",
-    "2  01  e      1                                                                    2",
+    "2  01 1   e        e                                                               2",
+    "2   1  <----->111111111                                                            2",
+    "20  1         11                                                                   2",
+    "2   1 <---->1111                                                                   2",
+    "2  01  e      11                                                                   2",
     "433333333333333333333333333333333333333333333333333333333333333333333333333333333335"
 ];
 Level.mapWidth = Level.data2[0].length * TILE_SIZE;
@@ -493,10 +492,6 @@ function setup() {
     enemies = [];
     level = new Level(enemies);
     enemies.forEach(enemy => (enemy.sound.currentTime = 2.35102));
-    // enemies.push(new Enemy(TILE_SIZE * 12, TILE_SIZE * 5 - HALF_TILE, 2));
-    // enemies.push(new Enemy(TILE_SIZE * 14, TILE_SIZE * 8 + HALF_TILE, 2));
-    // enemies.push(new Enemy(TILE_SIZE * 16, TILE_SIZE * 8 + HALF_TILE, 2));
-    // enemies.push(new Enemy(TILE_SIZE * 18, TILE_SIZE * 8 + HALF_TILE, 2));
 }
 function paintHealth() {
     context.save();

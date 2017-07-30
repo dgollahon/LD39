@@ -123,13 +123,13 @@ class Level {
     // "433333333333333333333333333335"
     "633333333333333333333333333333333333333333333333333333333333333333333333333333333337",
     "2     1                                                                            2",
-    "2     1     e                                                                      2",
+    "2     1     e      e                                                               2",
     "2   1 1   <--->  <--->                                                             2",
-    "2  01 1   e                                                                        2",
-    "2   1  <----->                                                                     2",
-    "20  1                                                                              2",
-    "2   1 <------>1                                                                    2",
-    "2  01  e      1                                                                    2",
+    "2  01 1   e        e                                                               2",
+    "2   1  <----->111111111                                                            2",
+    "20  1         11                                                                   2",
+    "2   1 <---->1111                                                                   2",
+    "2  01  e      11                                                                   2",
     "433333333333333333333333333333333333333333333333333333333333333333333333333333333335"
   ];
   static readonly mapWidth = Level.data2[0].length * TILE_SIZE;
@@ -141,7 +141,7 @@ class Level {
 
     this.tiles = Level.data2.map(row => {
       const columns = row.length;
-      const columnTiles = [];
+      const columnTiles: Tile[] = [];
 
       for (let col = 0; col < columns; ++col) {
         let tileX = col * TILE_SIZE + HALF_TILE;
@@ -159,7 +159,7 @@ class Level {
         } else {
           tile = new Tile(tileX, tileY, parseInt(row[col]));
         }
-        columnTiles.push(tile);
+        tile && columnTiles.push(tile);
       }
 
       tileY += TILE_SIZE;
@@ -180,7 +180,6 @@ class Level {
 
       y += TILE_SIZE;
     }
-    // this.tiles.forEach(row => row.forEach(col => col.draw(context)));
   }
 
   public leftCollision(leftX: number, rightX: number, y: number): number | null {
@@ -311,7 +310,7 @@ class Enemy {
     this.sound = new Audio("laser.mp3");
   }
 
-  public draw(context: CanvasRenderingContext2D, timestamp: number, player) {
+  public draw(context: CanvasRenderingContext2D, timestamp: number, player: Player) {
     context.save();
     context.translate(player.xShift(), 0);
     this.sprite.draw(context, this.x, this.y, !this.right);
@@ -617,10 +616,6 @@ function setup() {
   enemies = [];
   level = new Level(enemies);
   enemies.forEach(enemy => (enemy.sound.currentTime = 2.35102));
-  // enemies.push(new Enemy(TILE_SIZE * 12, TILE_SIZE * 5 - HALF_TILE, 2));
-  // enemies.push(new Enemy(TILE_SIZE * 14, TILE_SIZE * 8 + HALF_TILE, 2));
-  // enemies.push(new Enemy(TILE_SIZE * 16, TILE_SIZE * 8 + HALF_TILE, 2));
-  // enemies.push(new Enemy(TILE_SIZE * 18, TILE_SIZE * 8 + HALF_TILE, 2));
 }
 
 function paintHealth() {
