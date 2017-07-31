@@ -529,7 +529,8 @@ class Player {
     if (keyState.isDown(KeyCode.W) && !this.jumping) {
       if (
         JUMP_SOUND.currentTime === 0 ||
-        Math.abs(JUMP_SOUND.currentTime - JUMP_SOUND.duration) < 0.025
+        JUMP_SOUND.currentTime > 0.35
+        // Math.abs(JUMP_SOUND.currentTime - JUMP_SOUND.duration) < 0.025
       ) {
         JUMP_SOUND.currentTime = 0;
         JUMP_SOUND.play();
