@@ -11,6 +11,7 @@ The power of the world is running out--literally! The facility's power has sprou
 + Jump: W
 + Killing: Touching enemies kills them, not you.
 + Dying: Look out--enemies will syphon you away with un-guns if you stand in front of them!
++ [TRY IT OUT](https://dgollahon.github.io/LD39/)
 
 ### Features:
 + You only have to play one level.
