@@ -121,15 +121,15 @@ class Level {
     // "2    00   <--------->        2",
     // "2   0000                     2",
     // "433333333333333333333333333335"
-    "633333333333333333333333333333333333333333333333333333333333333333333333333333333337",
-    "2     1                                                                            2",
-    "2     1     e      e                                                               2",
-    "2   1 1   <--->  <--->                                                             2",
-    "2  01 1   e        e                                                               2",
-    "2   1  <----->111111111                                                            2",
-    "20  1         11                                                                   2",
-    "2   1 <---->1111                                                                   2",
-    "2  01  e      11                                                                   2",
+    "633333333333333333333333333333333333333333333333333333333333333333333333333333333333",
+    "2     1                                                      1       1              ",
+    "2     1     e      e                                         1       1  eeee  833337",
+    "2   1 1   <--->  <--->                                       11111111111<-->11111112",
+    "2  01 1   e        e                           0   111 -  -  1  eee                2",
+    "2   1  <----->111111111                <--->        e        1<---->1111111111111112",
+    "20  1         11      111                     11111111111    1                     2",
+    "2   1 <---->1111        111    0   0   0   0  1         1    111111111111111111111 2",
+    "2  01  e      11          11   e   e   e   e    eeeeee  1  e                       2",
     "433333333333333333333333333333333333333333333333333333333333333333333333333333333335"
   ];
   static readonly mapWidth = Level.data2[0].length * TILE_SIZE;
@@ -156,10 +156,11 @@ class Level {
           tile = new Tile(tileX, tileY, 12);
         } else if (row[col] === "e") {
           enemies.push(new Enemy(tileX, tileY, 2));
+          tile = new EmptyTile(tileX, tileY);
         } else {
           tile = new Tile(tileX, tileY, parseInt(row[col]));
         }
-        tile && columnTiles.push(tile);
+        columnTiles.push(tile);
       }
 
       tileY += TILE_SIZE;
@@ -294,7 +295,7 @@ class Enemy {
   sprite: Sprite;
   firing: number | false;
   readonly speed = 1.3;
-  readonly range = 5 * TILE_SIZE;
+  readonly range = 4 * TILE_SIZE;
   dead: boolean;
   sound: any;
 
@@ -431,6 +432,7 @@ class Player {
   running: boolean;
   sprite: Sprite;
   health: number;
+  won: boolean;
 
   constructor() {
     this.x = TILE_SIZE + HALF_TILE;
@@ -442,6 +444,7 @@ class Player {
     this.running = false;
     this.sprite = new Sprite(PLAYER_IMAGE, 16, 4);
     this.health = 100;
+    this.won = false;
   }
 
   public xShift() {
@@ -463,6 +466,10 @@ class Player {
   }
 
   public update(keyState: KeyState, level: Level): void {
+    if (this.x > Level.mapWidth - TILE_SIZE && this.y < TILE_SIZE * 2) {
+      this.won = true;
+      return;
+    }
     if (keyState.isDown(KeyCode.A)) {
       this.running = true;
       let newX = this.x - this.xSpeed;
@@ -545,8 +552,8 @@ class Player {
 enum KeyCode {
   W = 87,
   A = 65,
-  S = 83,
-  D = 68
+  D = 68,
+  ENTER = 13
 }
 
 class KeyState {
@@ -584,15 +591,28 @@ setup();
 function mainLoop(timestamp: number): void {
   clearScreen();
 
-  update(timestamp);
+  if (player.won) {
+    if (keyState.isDown(KeyCode.ENTER)) {
+      setup();
+    } else {
+      context.save();
+      context.font = "40px Times New Roman";
+      canvas.textAlign = "center";
+      context.fillStyle = "#FFFFFF";
+      context.fillText("You Won! Press enter to play again.", 75, HEIGHT / 2);
+      context.restore();
+    }
+  } else {
+    update(timestamp);
 
-  level.draw(context, player);
-  enemies.forEach(enemy => enemy.draw(context, timestamp, player));
-  player.draw();
-  paintHealth();
+    level.draw(context, player);
+    enemies.forEach(enemy => enemy.draw(context, timestamp, player));
+    player.draw();
+    paintHealth();
 
-  if (player.health <= 0) {
-    setup();
+    if (player.health <= 0) {
+      setup();
+    }
   }
 
   requestAnimationFrame(mainLoop);
@@ -613,9 +633,9 @@ function update(timestamp: number): void {
 
 function setup() {
   player = new Player();
+  enemies.forEach(enemy => (enemy.sound.currentTime = 2.35102));
   enemies = [];
   level = new Level(enemies);
-  enemies.forEach(enemy => (enemy.sound.currentTime = 2.35102));
 }
 
 function paintHealth() {

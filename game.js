@@ -92,11 +92,12 @@ class Level {
                 }
                 else if (row[col] === "e") {
                     enemies.push(new Enemy(tileX, tileY, 2));
+                    tile = new EmptyTile(tileX, tileY);
                 }
                 else {
                     tile = new Tile(tileX, tileY, parseInt(row[col]));
                 }
-                tile && columnTiles.push(tile);
+                columnTiles.push(tile);
             }
             tileY += TILE_SIZE;
             return columnTiles;
@@ -199,22 +200,22 @@ Level.data2 = [
     // "2    00   <--------->        2",
     // "2   0000                     2",
     // "433333333333333333333333333335"
-    "633333333333333333333333333333333333333333333333333333333333333333333333333333333337",
-    "2     1                                                                            2",
-    "2     1     e      e                                                               2",
-    "2   1 1   <--->  <--->                                                             2",
-    "2  01 1   e        e                                                               2",
-    "2   1  <----->111111111                                                            2",
-    "20  1         11                                                                   2",
-    "2   1 <---->1111                                                                   2",
-    "2  01  e      11                                                                   2",
+    "633333333333333333333333333333333333333333333333333333333333333333333333333333333333",
+    "2     1                                                      1       1              ",
+    "2     1     e      e                                         1       1  eeee  833337",
+    "2   1 1   <--->  <--->                                       11111111111<-->11111112",
+    "2  01 1   e        e                           0   111 -  -  1  eee                2",
+    "2   1  <----->111111111                <--->        e        1<---->1111111111111112",
+    "20  1         11      111                     11111111111    1                     2",
+    "2   1 <---->1111        111    0   0   0   0  1         1    111111111111111111111 2",
+    "2  01  e      11          11   e   e   e   e    eeeeee  1  e                       2",
     "433333333333333333333333333333333333333333333333333333333333333333333333333333333335"
 ];
 Level.mapWidth = Level.data2[0].length * TILE_SIZE;
 class Enemy {
     constructor(x, y, range) {
         this.speed = 1.3;
-        this.range = 5 * TILE_SIZE;
+        this.range = 4 * TILE_SIZE;
         this.x = x;
         this.y = y;
         this.leftX = x - range * TILE_SIZE;
@@ -338,6 +339,7 @@ class Player {
         this.running = false;
         this.sprite = new Sprite(PLAYER_IMAGE, 16, 4);
         this.health = 100;
+        this.won = false;
     }
     xShift() {
         if (this.x < WIDTH / 2) {
@@ -358,6 +360,10 @@ class Player {
         this.sprite.draw(context, drawX, this.y, !this.faceRight);
     }
     update(keyState, level) {
+        if (this.x > Level.mapWidth - TILE_SIZE && this.y < TILE_SIZE * 2) {
+            this.won = true;
+            return;
+        }
         if (keyState.isDown(KeyCode.A)) {
             this.running = true;
             let newX = this.x - this.xSpeed;
@@ -436,8 +442,8 @@ var KeyCode;
 (function (KeyCode) {
     KeyCode[KeyCode["W"] = 87] = "W";
     KeyCode[KeyCode["A"] = 65] = "A";
-    KeyCode[KeyCode["S"] = 83] = "S";
     KeyCode[KeyCode["D"] = 68] = "D";
+    KeyCode[KeyCode["ENTER"] = 13] = "ENTER";
 })(KeyCode || (KeyCode = {}));
 class KeyState {
     constructor() {
@@ -464,13 +470,28 @@ setup();
 // Game functions
 function mainLoop(timestamp) {
     clearScreen();
-    update(timestamp);
-    level.draw(context, player);
-    enemies.forEach(enemy => enemy.draw(context, timestamp, player));
-    player.draw();
-    paintHealth();
-    if (player.health <= 0) {
-        setup();
+    if (player.won) {
+        if (keyState.isDown(KeyCode.ENTER)) {
+            setup();
+        }
+        else {
+            context.save();
+            context.font = "40px Times New Roman";
+            canvas.textAlign = "center";
+            context.fillStyle = "#FFFFFF";
+            context.fillText("You Won! Press enter to play again.", 75, HEIGHT / 2);
+            context.restore();
+        }
+    }
+    else {
+        update(timestamp);
+        level.draw(context, player);
+        enemies.forEach(enemy => enemy.draw(context, timestamp, player));
+        player.draw();
+        paintHealth();
+        if (player.health <= 0) {
+            setup();
+        }
     }
     requestAnimationFrame(mainLoop);
 }
@@ -489,9 +510,9 @@ function update(timestamp) {
 }
 function setup() {
     player = new Player();
+    enemies.forEach(enemy => (enemy.sound.currentTime = 2.35102));
     enemies = [];
     level = new Level(enemies);
-    enemies.forEach(enemy => (enemy.sound.currentTime = 2.35102));
 }
 function paintHealth() {
     context.save();
