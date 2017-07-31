@@ -491,7 +491,6 @@ window.addEventListener("keyup", keyState.onKeyup, false);
 let player = new Player();
 let enemies = [];
 let level = new Level(enemies);
-setup();
 // Game functions
 function mainLoop(timestamp) {
     clearScreen();
@@ -556,4 +555,7 @@ function clearScreen() {
     context.restore();
 }
 // Run game
-requestAnimationFrame(mainLoop);
+window.onload = () => {
+    setup();
+    requestAnimationFrame(mainLoop);
+};
